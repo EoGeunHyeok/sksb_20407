@@ -1,1 +1,1 @@
-<h1 class="font-bold text-green-600 "> 안냐데엽 </h1>
+<h1 class="font-bold text-green-600 "> 바보 </h1>
