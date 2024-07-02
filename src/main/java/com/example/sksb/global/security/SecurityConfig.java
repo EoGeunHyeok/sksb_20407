@@ -1,4 +1,4 @@
-package com.example.sksb.domain.global.security;
+package com.example.sksb.global.security;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;

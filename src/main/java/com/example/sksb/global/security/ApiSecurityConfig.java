@@ -1,4 +1,5 @@
-package com.example.sksb.domain.global.security;
+package com.example.sksb.global.security;
+
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

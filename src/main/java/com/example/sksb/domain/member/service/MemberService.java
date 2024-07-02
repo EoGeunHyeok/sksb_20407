@@ -11,30 +11,30 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
-
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class MemberService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
-    private  final AuthTokenService authTokenService;
+    private final AuthTokenService authTokenService;
 
-    public Optional<Member> findByUsername(String username){
+    public Optional<Member> findByUsername(String username) {
         return memberRepository.findByUsername(username);
     }
 
     public boolean passwordMatches(Member member, String password) {
-        return passwordEncoder.matches(member.getPassword(), password);
+        return passwordEncoder.matches(password, member.getPassword());
     }
 
     @Transactional
     public void join(String username, String password) {
         Member member = Member.builder()
                 .username(username)
-                .password(password)
+                .password(passwordEncoder.encode(password))
                 .build();
-       memberRepository.save(member);
+
+        memberRepository.save(member);
     }
 
     @Getter
@@ -56,15 +56,13 @@ public class MemberService {
         if (!passwordMatches(member, password))
             throw new GlobalException("400-2", "비밀번호가 일치하지 않습니다.");
 
-        String refreshToken = authTokenService.genRefreshToken(member); // 진짜 토큰은 아니고 임의적으로 만들어서 한것.
-        String accessToken = authTokenService.genAccessToken(member); // 진짜 토큰은 아니고 임의적으로 만들어서 한것.
+        String refreshToken = authTokenService.genRefreshToken(member);
+        String accessToken = authTokenService.genAccessToken(member);
 
         return RsData.of(
                 "200-1",
                 "로그인 성공",
                 new AuthAndMakeTokensResponseBody(accessToken, refreshToken)
         );
-
     }
-
 }

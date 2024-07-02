@@ -1,6 +1,7 @@
 package com.example.sksb.domain.member.controller;
 
 import com.example.sksb.domain.member.service.MemberService;
+import com.example.sksb.global.rq.Rq;
 import com.example.sksb.global.rsData.RsData;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class ApiV1MemberController {
     private final MemberService memberService;
+    private final Rq rq;
 
     @AllArgsConstructor
     @Getter
@@ -42,6 +44,12 @@ public class ApiV1MemberController {
             @Valid @RequestBody LoginRequestBody body
     ) {
         RsData<MemberService.AuthAndMakeTokensResponseBody> authAndMakeTokensRs = memberService.authAndMakeTokens(body.getUsername(), body.getPassword());
+
+        // Rq에 쿠키 설정해놓은걸 만들었기때문에
+        // 토큰값을 만들어 설정해 주는 부분
+        // XSS 공격 방지용으로 사용
+        rq.setCrossDomainCookie("refreshToken", authAndMakeTokensRs.getData().getRefreshToken());
+        rq.setCrossDomainCookie("accessToken", authAndMakeTokensRs.getData().getAccessToken());
 
         return RsData.of(
                 authAndMakeTokensRs.getResultCode(),
