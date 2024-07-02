@@ -2,15 +2,19 @@ package com.example.sksb.domain.member.service;
 
 import com.example.sksb.domain.member.entity.Member;
 import com.example.sksb.domain.member.repository.MemberRepository;
-import com.example.sksb.global.rsData.RsData;
 import com.example.sksb.global.excepctions.GlobalException;
+import com.example.sksb.global.rsData.RsData;
+import com.example.sksb.global.security.SecurityUser;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 
@@ -40,6 +44,7 @@ public class MemberService {
         memberRepository.save(member);
     }
 
+
     @Getter
     @AllArgsConstructor
     public static class AuthAndMakeTokensResponseBody {
@@ -65,4 +70,22 @@ public class MemberService {
                 new AuthAndMakeTokensResponseBody(member, accessToken, refreshToken)
         );
     }
+
+    public SecurityUser getUserFromAccessToken(String accessToken) {
+        Map<String, Object> payloadBody = authTokenService.getDataFrom(accessToken);
+
+        long id = (int) payloadBody.get("id");
+        String username = (String) payloadBody.get("username");
+        List<String> authorities = (List<String>) payloadBody.get("authorities");
+
+        return new SecurityUser(
+                id,
+                username,
+                "",
+
+                authorities.stream().map(SimpleGrantedAuthority::new).toList()
+                // 사용자 정보를 SimpleGrantedAuthority 이러한 객체로 변환후 리스트로 보냄
+        );
+    }
+
 }

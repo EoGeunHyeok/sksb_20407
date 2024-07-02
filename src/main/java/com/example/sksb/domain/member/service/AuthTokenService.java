@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -38,5 +40,19 @@ public class AuthTokenService {
 
     public String genAccessToken(Member member) {
         return genToken(member, 60 * 10); // 10분
+    }
+
+    public Map<String, Object> getDataFrom(String token) {
+        Claims payload = Jwts.parser()
+                .setSigningKey(AppConfig.getJwtSecretKey())
+                .build()
+                .parseClaimsJws(token)
+                .getPayload();
+
+        return Map.of(
+                "id", payload.get("id", Integer.class),
+                "username", payload.get("username", String.class),
+                "authorities", payload.get("authorities", List.class)
+        );
     }
 }
