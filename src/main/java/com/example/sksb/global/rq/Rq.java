@@ -1,7 +1,9 @@
 package com.example.sksb.global.rq;
 
+import com.example.sksb.domain.member.entity.Member;
 import com.example.sksb.domain.member.service.MemberService;
 import com.example.sksb.global.security.SecurityUser;
+import jakarta.persistence.EntityManager;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -10,6 +12,8 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.annotation.RequestScope;
+
+import java.util.Optional;
 
 @Component
 // http 요청을 계속 받을때마다 새로운 객체를 생성해서 받음
@@ -20,6 +24,8 @@ public class Rq {
     private final MemberService memberService;
     private final HttpServletRequest req;
     private final HttpServletResponse resp;
+    private Member member;
+    private EntityManager entityManager;
 
     // 일반
     public boolean isAjax() {
@@ -107,7 +113,35 @@ public class Rq {
 
         resp.addHeader("Set-Cookie", responseCookie.toString());
     }
-    public void setLogin(SecurityUser securityUser){
+
+    public void setLogin(SecurityUser securityUser) {
         SecurityContextHolder.getContext().setAuthentication(securityUser.genAuthentication());
     }
+
+    public Member getMember() {
+        if (isLogout()) return null;
+
+        if (member == null) {
+            member = entityManager.getReference(Member.class, getUser().getId());
+        }
+
+        return member;
+    }
+
+    private boolean isLogout() {
+        return !isLogin();
+    }
+
+    private boolean isLogin() {
+        return getUser() != null;
+    }
+
+    private SecurityUser getUser() {
+        return Optional.ofNullable(SecurityContextHolder.getContext())
+                .map(context -> context.getAuthentication())
+                .filter(authentication -> authentication.getPrincipal() instanceof SecurityUser)
+                .map(authentication -> (SecurityUser) authentication.getPrincipal())
+                .orElse(null);
+    }
+
 }

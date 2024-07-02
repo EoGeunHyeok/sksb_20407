@@ -1,6 +1,7 @@
 package com.example.sksb.domain.member.controller;
 
 import com.example.sksb.domain.member.dto.MemberDto;
+import com.example.sksb.domain.member.entity.Member;
 import com.example.sksb.domain.member.service.MemberService;
 import com.example.sksb.global.rq.Rq;
 import com.example.sksb.global.rsData.RsData;
@@ -10,10 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/members")
@@ -57,6 +55,22 @@ public class ApiV1MemberController {
                              authAndMakeTokensRs.getData().getMember()
                      )
                 )
+        );
+    }
+    @Getter
+    public static class MeResponseBody {
+        private MemberDto item;
+
+        public MeResponseBody(Member member) {
+            this.item = new MemberDto(member);
+        }
+    }
+    @GetMapping(value = "/me")
+    public RsData<MeResponseBody> getMe(){
+        return RsData.of(
+                "200",
+                "내 정보 가져오기 성공!",
+                new MeResponseBody(rq.getMember())
         );
     }
 }
