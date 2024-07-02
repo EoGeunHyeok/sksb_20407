@@ -25,4 +25,6 @@ public class MemberDto {
         this.username = member.getUsername();
         this.authorities = member.getAuthoritiesAsStringList();
     }
+
+
 }
