@@ -1,10 +1,10 @@
 package com.example.sksb.domain.member.controller;
 
-import com.example.sksb.domain.member.entity.Member;
 import com.example.sksb.domain.member.service.MemberService;
-import com.example.sksb.global.excepctions.GlobalException;
+import com.example.sksb.global.rsData.RsData;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -19,13 +19,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class ApiV1MemberController {
     private final MemberService memberService;
 
+    @AllArgsConstructor
     @Getter
     public static class LoginResponseBody {
-        private String username;
-
-        public  LoginResponseBody(String username) {
-            this.username = username;
-        }
+        @NotBlank
+        private String refreshToken;
+        @NotBlank
+        private String accessToken;
     }
 
     @Getter
@@ -38,14 +38,18 @@ public class ApiV1MemberController {
     }
 
     @PostMapping("/login")
-    public LoginResponseBody login(@Valid @RequestBody LoginRequestBody body) {
-        Member member = memberService.findByUsername(body.getUsername())
-                .orElseThrow(() -> new GlobalException("400-1", "해당 유저가 존재하지 않습니다."));
+    public RsData<LoginResponseBody> login(
+            @Valid @RequestBody LoginRequestBody body
+    ) {
+        RsData<MemberService.AuthAndMakeTokensResponseBody> authAndMakeTokensRs = memberService.authAndMakeTokens(body.getUsername(), body.getPassword());
 
-        if ( memberService.passwordMatches(member, body.getPassword()) == false ) {
-            throw new GlobalException("400-2", "비밀번호가 일치하지 않습니다.");
-        }
-
-        return new LoginResponseBody(member.getUsername());
+        return RsData.of(
+                authAndMakeTokensRs.getResultCode(),
+                authAndMakeTokensRs.getMsg(),
+                new LoginResponseBody(
+                        authAndMakeTokensRs.getData().getRefreshToken(),
+                        authAndMakeTokensRs.getData().getAccessToken()
+                )
+        );
     }
 }
