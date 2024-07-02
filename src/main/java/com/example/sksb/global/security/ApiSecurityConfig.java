@@ -19,9 +19,20 @@ public class ApiSecurityConfig {
 
         http
                 .securityMatcher("/api/**")
+                .authorizeRequests(
+                        authorizeRequests -> authorizeRequests
+                                .requestMatchers("/api/*/members/login","/api/*/members/logout")
+                                .permitAll()
+                                .anyRequest()
+                                .authenticated()
+                )
+
                 .csrf(
                         csrf -> csrf
                                 .disable()
+                )
+                .cors( //도메인에서 요청을 하거나 제한하는데 사용
+                        csrf -> csrf.configure(http)
                 )
                 .sessionManagement( // 매니지먼트 세션관리 비활성화
                         sessionManagement -> sessionManagement

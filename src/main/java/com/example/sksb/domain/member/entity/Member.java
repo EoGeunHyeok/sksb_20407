@@ -34,6 +34,7 @@ public class Member {
     private LocalDateTime modifyDate;
     private String username;
     private String password;
+    private String refreshToken;
 
     public List<String> getAuthoritiesAsStringList(){
 
