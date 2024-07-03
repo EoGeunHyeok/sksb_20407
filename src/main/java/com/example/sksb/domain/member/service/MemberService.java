@@ -78,7 +78,7 @@ public class MemberService {
     public SecurityUser getUserFromAccessToken(String accessToken) {
         Map<String, Object> payloadBody = authTokenService.getDataFrom(accessToken);
 
-        long id = (int) payloadBody.get("id");
+        long id = (Integer) payloadBody.get("id");
         String username = (String) payloadBody.get("username");
         List<String> authorities = (List<String>) payloadBody.get("authorities");
 

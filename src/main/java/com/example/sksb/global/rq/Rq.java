@@ -24,8 +24,9 @@ public class Rq {
     private final MemberService memberService;
     private final HttpServletRequest req;
     private final HttpServletResponse resp;
+    private final EntityManager entityManager;
     private Member member;
-    private EntityManager entityManager;
+
 
     // 일반
     public boolean isAjax() {
@@ -144,4 +145,15 @@ public class Rq {
                 .orElse(null);
     }
 
+    public void removeCrossDomainCookie(String name) {
+        ResponseCookie cookie = ResponseCookie.from(name, null)
+                .path("/")
+                .maxAge(0)
+                .sameSite("None")
+                .secure(true)
+                .httpOnly(true)
+                .build();
+
+        resp.addHeader("Set-Cookie", cookie.toString());
+    }
 }

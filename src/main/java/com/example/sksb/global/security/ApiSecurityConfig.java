@@ -32,14 +32,11 @@ public class ApiSecurityConfig {
                                 .disable()
                 )
                 .cors( //도메인에서 요청을 하거나 제한하는데 사용
-                        csrf -> csrf.configure(http)
+                        cors -> cors.configure(http)
                 )
                 .sessionManagement( // 매니지먼트 세션관리 비활성화
                         sessionManagement -> sessionManagement
                                 .disable()
-                )
-                .cors(cors -> cors
-                        .configure(http)
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
